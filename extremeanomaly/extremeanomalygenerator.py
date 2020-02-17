@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 import datetime
+from datetime import timezone
 
 from iotfunctions.base import BaseTransformer
 from iotfunctions.ui import (UISingle, UIFunctionOutSingle, UISingleItem)
@@ -22,31 +23,27 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         super().__init__()
 
     def execute(self, df):
-        currentdt = datetime.datetime.now()
-        logger.debug("-----------....")
-        logger.debug(str(currentdt))
-        timeseries = df.copy().reset_index()
+        currentdt = datetime.datetime.now(timezone.utc)
+        logger.debug('Start function execution {}'.format(str(currentdt)))
+        timeseries = df.reset_index()
         #Create a zero value series
         additional_values = pd.Series(np.zeros(timeseries[self.input_item].size),index=timeseries.index)
         timestamps_indexes = []
-        logger.debug("--additional_values shape--{}".format(additional_values.shape))
+        logger.debug('Dataframe shape {}'.format(df.shape))
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
         for time_splits in np.array_split(timeseries,self.factor):
-            start = time_splits.sample(1).index[0]
-            timestamps_indexes.append(start)
-        logger.debug("--timestamps --{}".format(timestamps_indexes))
+            if not time_splits.empty:
+                start = time_splits.sample().index[0]
+                timestamps_indexes.append(start)
         #Create extreme anomalies in every split
+        logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
         for start  in timestamps_indexes:
             local_std = timeseries[self.input_item].iloc[max(0, start - 10):start + 10].std()
-            logger.debug("--local_std --{}".format(local_std))
-            logger.debug("--additional_values before --{}".format(additional_values.iloc[start]))
             additional_values.iloc[start] += np.random.choice([-1, 1]) * self.size * local_std
-            logger.debug("--additional_values after --{}".format(additional_values.iloc[start]))
             timeseries[self.output_item] = additional_values + timeseries[self.input_item]
 
         timeseries.set_index(df.index.names,inplace=True)
-        logger.debug("-----------....")
-        logger.debug(str(currentdt))
+        logger.debug('End function execution {}'.format(str(currentdt)))
         return timeseries
 
     @classmethod
