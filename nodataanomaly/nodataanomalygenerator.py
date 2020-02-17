@@ -40,6 +40,8 @@ class NoDataAnomalyGenerator(BaseTransformer):
         for start, end in timestamps_indexes:
             additional_values.iloc[start:end] = np.NaN
             timeseries[self.output_item] = additional_values + timeseries[self.input_item]
+            logger.debug('Final Dataframe')
+            logger.debug(timeseries[self.output_item].iloc[start:end])
 
         timeseries.set_index(df.index.names,inplace=True)
         logger.debug('End function execution {}'.format(str(currentdt)))
