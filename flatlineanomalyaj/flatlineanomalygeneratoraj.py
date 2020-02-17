@@ -30,10 +30,13 @@ class FlatlineAnomalyGenerator(BaseTransformer):
         additional_values = pd.Series(np.zeros(timeseries[self.input_item].size),index=timeseries.index)
         timestamps_indexes = []
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
+        print('Time Splits')
+        print(np.array_split(timeseries,self.factor))
         for time_splits in np.array_split(timeseries,self.factor):
-            start = time_splits.sample(1).index[0]
-            end = min(start+self.width,time_splits.index[-1])
-            timestamps_indexes.append((start,end))
+            if time_splits:
+                start = time_splits.sample(1).index[0]
+                end = min(start+self.width,time_splits.index[-1])
+                timestamps_indexes.append((start,end))
         #Create flatline anomalies in every split
         for start, end in timestamps_indexes:
             local_mean = timeseries.iloc[max(0, start - 10):end + 10][self.input_item].mean()
