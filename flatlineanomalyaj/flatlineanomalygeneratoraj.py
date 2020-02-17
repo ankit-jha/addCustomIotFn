@@ -33,7 +33,7 @@ class FlatlineAnomalyGenerator(BaseTransformer):
         print('Time Splits')
         print(np.array_split(timeseries,self.factor))
         for time_splits in np.array_split(timeseries,self.factor):
-            if time_splits:
+            if not time_splits.empty:
                 start = time_splits.sample(1).index[0]
                 end = min(start+self.width,time_splits.index[-1])
                 timestamps_indexes.append((start,end))
