@@ -1,6 +1,8 @@
 import logging
 import numpy as np
 import pandas as pd
+import datetime
+from datetime import timezone
 
 from iotfunctions.base import BaseTransformer
 from iotfunctions.ui import (UISingle, UIFunctionOutSingle, UISingleItem)
@@ -21,21 +23,26 @@ class NoDataAnomalyGenerator(BaseTransformer):
         super().__init__()
 
     def execute(self, df):
-        timeseries = df.copy().reset_index()
+        currentdt = datetime.datetime.now(timezone.utc)
+        logger.debug('Start function execution {}'.format(str(currentdt)))
+        timeseries = df.reset_index()
         #Create a zero value series
         additional_values = pd.Series(np.zeros(timeseries[self.input_item].size),index=timeseries.index)
         timestamps_indexes = []
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
         for time_splits in np.array_split(timeseries,self.factor):
-            start = time_splits.sample().index[0]
-            end = min(start+self.width,time_splits.index[-1])
-            timestamps_indexes.append((start,end))
-        #Create flatline anomalies in every split
+            if not time_splits.empty:
+                start = time_splits.sample().index[0]
+                end = min(start+self.width,time_splits.index[-1])
+                timestamps_indexes.append((start,end))
+        #Create nodata anomalies in every split
+        logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
         for start, end in timestamps_indexes:
-            additional_values.iloc[start:end] += np.NaN
+            additional_values.iloc[start:end] = np.NaN
             timeseries[self.output_item] = additional_values + timeseries[self.input_item]
 
         timeseries.set_index(df.index.names,inplace=True)
+        logger.debug('End function execution {}'.format(str(currentdt)))
         return timeseries
 
     @classmethod
