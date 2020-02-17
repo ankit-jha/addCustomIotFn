@@ -38,6 +38,7 @@ class FlatlineAnomalyGenerator(BaseTransformer):
                 end = min(start+self.width,time_splits.index[-1])
                 timestamps_indexes.append((start,end))
         #Create flatline anomalies in every split
+        logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
         for start, end in timestamps_indexes:
             local_mean = timeseries.iloc[max(0, start - 10):end + 10][self.input_item].mean()
             logger.debug("local mean {}".format(local_mean))
