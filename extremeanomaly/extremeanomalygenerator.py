@@ -38,8 +38,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         db = self.get_db()
         schema = "BLUADMIN"
         logger.debug('Fire Database query')
-        df_result = db.read_agg(derived_metric_table_name,schema,{df_deviceid_col_name: 'count'},group_by=df_deviceid_col_name)
-        logger.debug(df_result)
+        #df_result = db.read_agg(derived_metric_table_name,schema,{df_deviceid_col_name: 'count'},group_by=df_deviceid_col_name)
+        #logger.debug(df_result)
 
 
         logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
