@@ -39,7 +39,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         
         #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
         logger.debug('Entity db {}'.format(self.get_db()))
-        logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata))
+        logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata.values()))
 
 
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
