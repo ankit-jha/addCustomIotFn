@@ -31,12 +31,15 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         timestamps_indexes = []
         logger.debug('Dataframe shape {}'.format(df.shape))
 
-        #Get Entity Type Table
+        #Get Derived Metric Table
+        derived_metric_table_name = self.get_entity_type_param('name')
+
         logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
         logger.debug('Entity type {}'.format(self.get_entity_type()))
         
         #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
         logger.debug('Entity db {}'.format(self.get_db()))
+        logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata))
 
 
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
