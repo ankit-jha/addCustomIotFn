@@ -37,17 +37,17 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         df_deviceid_col_name = 'entity_id'
         db = self.get_db()
         schema = "BLUADMIN"
-        # logger.debug('Fire Database query')
+        logger.debug('Fire Database query')
         # #df_result = db.read_agg(derived_metric_table_name,schema,{df_deviceid_col_name: 'count'},group_by=df_deviceid_col_name)
         # #logger.debug(df_result)
 
 
-        logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
-        logger.debug('Entity type {}'.format(self.get_entity_type()))
+        # logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
+        # logger.debug('Entity type {}'.format(self.get_entity_type()))
         
-        #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
-        logger.debug('Entity db {}'.format(self.get_db()))
-        logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata[self.get_entity_type_param('name')])
+        # #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
+        # logger.debug('Entity db {}'.format(self.get_db()))
+        # logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata[self.get_entity_type_param('name')])
         # entity_type_metadata = self.get_db().entity_type_metadata[self.get_entity_type_param('name')]
         # logger.debug('Entity metadata type {}'.format(type(entity_type_metadata))
         # logger.debug('Entity metadata data items {}'.format(entity_type_metadata._data_items)
