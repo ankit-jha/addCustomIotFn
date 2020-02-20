@@ -42,7 +42,9 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         df_result = db.read_agg(derived_metric_table_name,
                                 schema,
                                 agg_dict={df_deviceid_col_name: 'count'},
+                                agg_outputs={"count": 'count'},
                                 groupby=[df_deviceid_col_name],
+                                filters={'key':derived_metric_table_key}
                                 deviceid_col=df_deviceid_col_name)
         logger.debug(df_result)
 
