@@ -39,6 +39,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         schema = "BLUADMIN"
         logger.debug('Fire Database query')
         print('Fire Database query')
+
+        # what are we trying to achieve here ?
         #df_result = db.read_agg(derived_metric_table_name,schema,{df_deviceid_col_name: 'count'},group_by=df_deviceid_col_name)
         #logger.debug(df_result)
 
@@ -46,20 +48,22 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
         print('Entity table name {}'.format(self.get_entity_type_param('name')))
         print('Entity type {}'.format(self.get_entity_type()))
-        
+
         #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
         logger.debug('Entity db {}'.format(self.get_db()))
-        logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata[self.get_entity_type_param('name')]))
-        entity_type_metadata = self.get_db().entity_type_metadata[self.get_entity_type_param('name')]
-        logger.debug('Entity metadata type {}'.format(type(entity_type_metadata)))
-        logger.debug('Entity metadata data items {}'.format(entity_type_metadata._data_items))
+        #logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata[self.get_entity_type_param('name')]))
 
+        # why do we have to get the metadata ?
+        #entity_type_metadata = self.get_db().entity_type_metadata[self.get_entity_type_param('name')]
+        #logger.debug('Entity metadata type {}'.format(type(entity_type_metadata)))
+        #logger.debug('Entity metadata data items {}'.format(entity_type_metadata._data_items))
 
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
         for time_splits in np.array_split(timeseries,self.factor):
             if not time_splits.empty:
                 start = time_splits.sample().index[0]
                 timestamps_indexes.append(start)
+
         #Create extreme anomalies in every split
         logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
         for start  in timestamps_indexes:
@@ -68,6 +72,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             timeseries[self.output_item] = additional_values + timeseries[self.input_item]
 
         timeseries.set_index(df.index.names,inplace=True)
+        logger.debug('Got {}'.format(str(timeseries.index)))
         logger.debug('End function execution {}'.format(str(currentdt)))
         return timeseries
 
