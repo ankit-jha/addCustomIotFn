@@ -39,13 +39,25 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         schema = "BLUADMIN"
         logger.debug('Fire Database query')
         print('Fire Database query')
-        df_result = db.read_agg(derived_metric_table_name,schema,
-                                {df_deviceid_col_name: 'count'},
-                                groupby=[df_deviceid_col_name])
+        df_result = db.read_agg(derived_metric_table_name,
+                                schema,
+                                agg_dict={df_deviceid_col_name: 'count'},
+                                groupby=[df_deviceid_col_name],
+                                deviceid_col=df_deviceid_col_name)
         logger.debug(df_result)
 
         #COS 
-        #db.cos_save()
+        counts_by_entity_id = db.cos_load('counts_by_entity_id')
+        if counts_by_entity_id is not None:
+            counts_by_entity_id = df.groupby(self._entity_type._entity_id)
+        
+        logger.debug('counts_by_entity_id')
+        logger.debug(counts_by_entity_id)
+        
+
+        
+        
+        db.cos_save(counts_by_entity_id,'counts_by_entity_id')
 
         logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
         print('Entity table name {}'.format(self.get_entity_type_param('name')))
