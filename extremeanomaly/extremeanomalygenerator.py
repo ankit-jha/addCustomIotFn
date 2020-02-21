@@ -49,7 +49,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         # logger.debug(df_result)
 
         #COS 
-        counts_by_entity_id = db.cos_load('counts_by_entity_id')
+        counts_by_entity_id = db.cos_load('counts_by_entity_id',binary=True)
         if counts_by_entity_id is not None:
             counts_by_entity_id = df.groupby(self._entity_type._entity_id)
         
