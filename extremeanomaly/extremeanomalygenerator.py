@@ -50,25 +50,23 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         # logger.debug(df_result)
 
         #COS
-        db = self.get_db()
+        db = self.get_db().session
 
         key = '_'.join([derived_metric_table_name, self.output_item])
         #Initialize storage
         query,table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'key':self.output_item})
         raw_dataframe = pd.read_sql_query(sql=query.statement, con=db.connection)
-        logger.debug('Query Stmt',query.statement)
+        logger.debug('raw_dataframe '+raw_dataframe.shape[0])
 
         if raw_dataframe is None:
             logger.debug('Not Exists')
             db.cos_delete(key)
         
-        db.cos_delete(key)
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         
-        logger.debug('counts_by_entity_id')
-        logger.debug(counts_by_entity_id)
+        logger.debug('counts_by_entity_id '+counts_by_entity_id)
 
         # logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
         # print('Entity table name {}'.format(self.get_entity_type_param('name')))
