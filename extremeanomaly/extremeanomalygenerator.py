@@ -32,7 +32,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         logger.debug('Dataframe shape {}'.format(df.shape))
 
         # #Get Derived Metric Table
-        # derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
+        derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
         # derived_metric_table_key = self.input_item
         # df_deviceid_col_name = 'entity_id'
         # db = self.get_db()
@@ -50,11 +50,15 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
         #COS
         db = self.get_db()
-        #clear up 
-        db.cos_delete('counts_by_entity_id')
-        counts_by_entity_id = db.cos_load('counts_by_entity_id',binary=True)
+        #clear up
+        #if not db.if_exists(derived_metric_table_name):
+        #    db.cos_delete('counts_by_entity_id')
+        key = derived_metric_table_name + self.output_item
+        counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is not None:
             counts_by_entity_id = df.groupby(self._entity_type._entity_id)
+        else:
+            counts_by_entity_id = {}
         
         logger.debug('counts_by_entity_id')
         logger.debug(counts_by_entity_id)
@@ -82,7 +86,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             
             for grp_row_index in df_entity_grp.index:
                 
-                if counts_by_entity_id is not None and entity_grp_id in counts_by_entity_id:
+                if entity_grp_id in counts_by_entity_id:
                     #Increment count
                     counts_by_entity_id[entity_grp_id] +=1
                 else:
@@ -98,7 +102,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         # Timestamp indexes will be used to create anomaly
         logger.debug('Grp Counts',counts_by_entity_id)
         #Save the group counts to cos
-        db.cos_save(counts_by_entity_id,'counts_by_entity_id')
+        db.cos_save(counts_by_entity_id,key)
 
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
         # for time_splits in np.array_split(timeseries,self.factor):
