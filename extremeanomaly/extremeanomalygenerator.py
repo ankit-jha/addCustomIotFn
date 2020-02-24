@@ -50,14 +50,14 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
         #COS
         db = self.get_db()
+
+        key = derived_metric_table_name + self.output_item
         #clear up
         #if not db.if_exists(derived_metric_table_name):
         #    db.cos_delete('counts_by_entity_id')
-        key = derived_metric_table_name + self.output_item
+        db.cos_delete(key)
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is not None:
-            counts_by_entity_id = df.groupby(self._entity_type._entity_id)
-        else:
             counts_by_entity_id = {}
         
         logger.debug('counts_by_entity_id')
@@ -102,7 +102,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         # Timestamp indexes will be used to create anomaly
         logger.debug('Grp Counts',counts_by_entity_id)
         #Save the group counts to cos
-        db.cos_save(counts_by_entity_id,key)
+        db.cos_save(counts_by_entity_id,key,binary=True)
 
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
         # for time_splits in np.array_split(timeseries,self.factor):
