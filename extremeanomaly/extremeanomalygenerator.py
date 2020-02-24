@@ -86,8 +86,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
             entity_grp_id = grp[0]
             df_entity_grp = grp[1]
-            logger.debug('Group id ',grp[0])
-            logger.debug('Group Indexes',df_entity_grp.index)
+            logger.debug('Group id '+grp[0])
+            logger.debug('Group Indexes '+df_entity_grp.index)
             
             for grp_row_index in df_entity_grp.index:
                 
@@ -103,9 +103,9 @@ class ExtremeAnomalyGenerator(BaseTransformer):
                     print('Anomaly Index Value',grp_row_index)
 
         logger.debug('***********')
-        logger.debug('Anomaly Indexes',timestamps_indexes)
+        logger.debug('Anomaly Indexes '+timestamps_indexes)
         # Timestamp indexes will be used to create anomaly
-        logger.debug('Grp Counts',counts_by_entity_id)
+        logger.debug('Grp Counts '+counts_by_entity_id)
         #Save the group counts to cos
         db.cos_save(counts_by_entity_id,key,binary=True)
 
