@@ -54,8 +54,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
         key = '_'.join([derived_metric_table_name, self.output_item])
         #Initialize storage
-        query,table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'key':self.output_item})
-        raw_dataframe = pd.read_sql_query(sql=query.statement, con=db.connection)
+        query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
+        raw_dataframe = db.get_query_data(query)
         logger.debug('raw_dataframe {}'.format(raw_dataframe.shape[0]))
 
         if raw_dataframe is None:
