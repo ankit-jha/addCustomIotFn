@@ -56,7 +56,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         #Initialize storage
         query,table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'key':self.output_item})
         raw_dataframe = pd.read_sql_query(sql=query.statement, con=db.connection)
-        logger.debug('raw_dataframe '+raw_dataframe.shape[0])
+        logger.debug('raw_dataframe {}'.format(raw_dataframe.shape[0]))
 
         if raw_dataframe is None:
             logger.debug('Not Exists')
@@ -66,7 +66,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         
-        logger.debug('counts_by_entity_id '+counts_by_entity_id)
+        logger.debug('counts_by_entity_id {}'.format(counts_by_entity_id))
 
         # logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
         # print('Entity table name {}'.format(self.get_entity_type_param('name')))
@@ -86,8 +86,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
             entity_grp_id = grp[0]
             df_entity_grp = grp[1]
-            logger.debug('Group id '+grp[0])
-            logger.debug('Group Indexes '+df_entity_grp.index)
+            logger.debug('Group id {}'.format(grp[0]))
+            logger.debug('Group Indexes {}'.format(df_entity_grp.index))
             
             for grp_row_index in df_entity_grp.index:
                 
@@ -100,12 +100,12 @@ class ExtremeAnomalyGenerator(BaseTransformer):
                 # Check if this index count will be an anomaly point
                 if counts_by_entity_id[entity_grp_id]%self.factor == 0:
                     timestamps_indexes.append(grp_row_index)
-                    print('Anomaly Index Value',grp_row_index)
+                    logger.debug('Anomaly Index Value{}'.format(grp_row_index))
 
         logger.debug('***********')
-        logger.debug('Anomaly Indexes '+timestamps_indexes)
+        logger.debug('Anomaly Indexes {}'.format(timestamps_indexes))
         # Timestamp indexes will be used to create anomaly
-        logger.debug('Grp Counts '+counts_by_entity_id)
+        logger.debug('Grp Counts {}'.format(counts_by_entity_id))
         #Save the group counts to cos
         db.cos_save(counts_by_entity_id,key,binary=True)
 
