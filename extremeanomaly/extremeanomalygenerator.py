@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from datetime import timezone
+from sqlalchemy import exists
 
 from iotfunctions.base import BaseTransformer
 from iotfunctions.ui import (UISingle, UIFunctionOutSingle, UISingleItem)
@@ -36,7 +37,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         # derived_metric_table_key = self.input_item
         # df_deviceid_col_name = 'entity_id'
         # db = self.get_db()
-        # schema = "BLUADMIN"
+        schema = "BLUADMIN"
         # logger.debug('Fire Database query')
         # print('Fire Database query')
         # df_result = db.read_agg(derived_metric_table_name,
@@ -51,10 +52,15 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         #COS
         db = self.get_db()
 
-        key = derived_metric_table_name + self.output_item
-        #clear up
-        #if not db.if_exists(derived_metric_table_name):
-        #    db.cos_delete('counts_by_entity_id')
+        key = '_'.join([derived_metric_table_name, self.output_item])
+        #Initialize storage
+        query,table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'key':self.output_item})
+        logger.debug('Query Stmt',query.statement)
+
+        if not exists(query):
+            logger.debug('Not Exists')
+            db.cos_delete(key)
+        
         db.cos_delete(key)
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is None:
