@@ -82,7 +82,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             
             for grp_row_index in df_entity_grp.index:
                 
-                if entity_grp_id in counts_by_entity_id:
+                if counts_by_entity_id is not None and entity_grp_id in counts_by_entity_id:
                     #Increment count
                     counts_by_entity_id[entity_grp_id] +=1
                 else:
