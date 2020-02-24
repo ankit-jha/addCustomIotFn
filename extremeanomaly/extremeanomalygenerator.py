@@ -57,7 +57,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         #    db.cos_delete('counts_by_entity_id')
         db.cos_delete(key)
         counts_by_entity_id = db.cos_load(key,binary=True)
-        if counts_by_entity_id is not None:
+        if counts_by_entity_id is None:
             counts_by_entity_id = {}
         
         logger.debug('counts_by_entity_id')
