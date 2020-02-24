@@ -32,13 +32,13 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         logger.debug('Dataframe shape {}'.format(df.shape))
 
         # #Get Derived Metric Table
-        derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
-        derived_metric_table_key = self.input_item
-        df_deviceid_col_name = 'entity_id'
-        db = self.get_db()
-        schema = "BLUADMIN"
-        logger.debug('Fire Database query')
-        print('Fire Database query')
+        # derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
+        # derived_metric_table_key = self.input_item
+        # df_deviceid_col_name = 'entity_id'
+        # db = self.get_db()
+        # schema = "BLUADMIN"
+        # logger.debug('Fire Database query')
+        # print('Fire Database query')
         # df_result = db.read_agg(derived_metric_table_name,
         #                         schema,
         #                         agg_dict={df_deviceid_col_name: 'count'},
@@ -55,31 +55,56 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         
         logger.debug('counts_by_entity_id')
         logger.debug(counts_by_entity_id)
-        
 
-        
-        
-        db.cos_save(counts_by_entity_id,'counts_by_entity_id')
-
-        logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
-        print('Entity table name {}'.format(self.get_entity_type_param('name')))
-        print('Entity type {}'.format(self.get_entity_type()))
+        # logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
+        # print('Entity table name {}'.format(self.get_entity_type_param('name')))
+        # print('Entity type {}'.format(self.get_entity_type()))
         
         #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
-        logger.debug('Entity db {}'.format(self.get_db()))
-        logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata.items()))
+        # logger.debug('Entity db {}'.format(self.get_db()))
+        # logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata.items()))
         # entity_type_metadata = self.get_db().entity_type_metadata[self.get_entity_type_param('name')]
         # logger.debug('Entity metadata type {}'.format(type(entity_type_metadata)))
         # logger.debug('Entity metadata data items {}'.format(entity_type_metadata._data_items))
 
+        #Mark Anomaly timestamp indexes
+        #Group by entity_ids
+        df_grpby =timeseries.groupby('id')
+        for grp in df_grpby.__iter__():
+
+            entity_grp_id = grp[0]
+            df_entity_grp = grp[1]
+            logger.debug('Group id ',grp[0])
+            logger.debug('Group Indexes',df_entity_grp.index)
+            
+            for grp_row_index in df_entity_grp.index:
+                
+                if entity_grp_id in counts_by_entity_id:
+                    #Increment count
+                    counts_by_entity_id[entity_grp_id] +=1
+                else:
+                    #Initialize count
+                    counts_by_entity_id[entity_grp_id] = 1
+                # Check if this index count will be an anomaly point
+                if counts_by_entity_id[entity_grp_id]%self.factor == 0:
+                    timestamps_indexes.append(grp_row_index)
+                    print('Anomaly Index Value',grp_row_index)
+
+        logger.debug('***********')
+        logger.debug('Anomaly Indexes',timestamps_indexes)
+        # Timestamp indexes will be used to create anomaly
+        logger.debug('Grp Counts',counts_by_entity_id)
+        #Save the group counts to cos
+        db.cos_save(counts_by_entity_id,'counts_by_entity_id')
 
         #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
-        for time_splits in np.array_split(timeseries,self.factor):
-            if not time_splits.empty:
-                start = time_splits.sample().index[0]
-                timestamps_indexes.append(start)
-        #Create extreme anomalies in every split
-        logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
+        # for time_splits in np.array_split(timeseries,self.factor):
+        #     if not time_splits.empty:
+        #         start = time_splits.sample().index[0]
+        #         timestamps_indexes.append(start)
+        
+        #Create extreme anomalies
+        #logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
         for start  in timestamps_indexes:
             local_std = timeseries[self.input_item].iloc[max(0, start - 10):start + 10].std()
             additional_values.iloc[start] += np.random.choice([-1, 1]) * self.size * local_std
