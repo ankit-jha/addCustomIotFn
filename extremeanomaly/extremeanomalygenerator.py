@@ -40,7 +40,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         #COS
         db = self.get_db()
         #schema = db.schema
-        logger.debug('DB schema {} , Metadata {}'.format(db.schema,db.entity_type_metadata))
+        logger.debug('Metadata {}'.format(db.entity_type_metadata))
         key = '_'.join([derived_metric_table_name, self.output_item])
         #Initialize storage
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
