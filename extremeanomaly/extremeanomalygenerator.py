@@ -50,13 +50,15 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         # logger.debug(df_result)
 
         #COS
-        db = self.get_db().session
-
+        db = self.get_db()
         key = '_'.join([derived_metric_table_name, self.output_item])
         #Initialize storage
+        logger.debug('derived_metric_table_name {}'.format(derived_metric_table_name))
+        logger.debug('schema {}'.format(schema))
+        logger.debug('filters {}'.format(self.output_item))
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
         raw_dataframe = db.get_query_data(query)
-        logger.debug('raw_dataframe {}'.format(raw_dataframe.shape[0]))
+        logger.debug('raw_dataframe {}'.format(raw_dataframe.shape))
 
         if raw_dataframe is None:
             logger.debug('Not Exists')
