@@ -36,37 +36,23 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
         schema = "BLUADMIN"
 
-
         #COS
         db = self.get_db()
-        #schema = db.schema
-        logger.debug('Metadata {}'.format(db.entity_type_metadata))
-        key = '_'.join([derived_metric_table_name, self.output_item])
         #Initialize storage
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
         raw_dataframe = db.get_query_data(query)
-        logger.debug('raw_dataframe {}'.format(raw_dataframe.shape))
-
-        if raw_dataframe is not None and raw_dataframe.empty:
-            logger.debug('Not Exists')
-            db.cos_delete(key)
-        
+        logger.debug('Rows in DM table {}'.format(raw_dataframe.shape))
+        key = '_'.join([derived_metric_table_name, self.output_item])
         counts_by_entity_id = db.cos_load(key,binary=True)
-        if counts_by_entity_id is None:
-            counts_by_entity_id = {}
-        
         logger.debug('counts_by_entity_id {}'.format(counts_by_entity_id))
-
-        # logger.debug('Entity table name {}'.format(self.get_entity_type_param('name')))
-        # print('Entity table name {}'.format(self.get_entity_type_param('name')))
-        # print('Entity type {}'.format(self.get_entity_type()))
         
-        #logger.debug('Entity metricsTableName {}'.format(self.get_entity_type().get_attributes_dict()))
-        # logger.debug('Entity db {}'.format(self.get_db()))
-        # logger.debug('Entity metadata {}'.format(self.get_db().entity_type_metadata.items()))
-        # entity_type_metadata = self.get_db().entity_type_metadata[self.get_entity_type_param('name')]
-        # logger.debug('Entity metadata type {}'.format(type(entity_type_metadata)))
-        # logger.debug('Entity metadata data items {}'.format(entity_type_metadata._data_items))
+        if raw_dataframe is not None and raw_dataframe.empty:
+            if counts_by_entity_id is None:
+                logger.debug('Intialize count for first run')
+                counts_by_entity_id = {}
+            else:
+                logger.debug('Re intialize count')
+                db.cos_delete(key)
 
         #Mark Anomaly timestamp indexes
         #Group by entity_ids
@@ -98,14 +84,6 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         #Save the group counts to cos
         db.cos_save(counts_by_entity_id,key,binary=True)
 
-        #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
-        # for time_splits in np.array_split(timeseries,self.factor):
-        #     if not time_splits.empty:
-        #         start = time_splits.sample().index[0]
-        #         timestamps_indexes.append(start)
-        
-        #Create extreme anomalies
-        #logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
         for start  in timestamps_indexes:
             local_std = timeseries[self.input_item].iloc[max(0, start - 10):start + 10].std()
             additional_values.iloc[start] += np.random.choice([-1, 1]) * self.size * local_std
