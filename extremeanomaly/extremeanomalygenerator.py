@@ -90,6 +90,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             timeseries[self.output_item] = additional_values + timeseries[self.input_item]
 
         timeseries.set_index(df.index.names,inplace=True)
+        logger.debug('Dataframe final shape {}'.format(timeseries.shape))
         logger.debug('End function execution {}'.format(str(currentdt)))
         return timeseries
 
