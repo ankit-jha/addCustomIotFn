@@ -24,19 +24,13 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         super().__init__()
 
     def execute(self, df):
-        currentdt = datetime.datetime.now(timezone.utc)
-        logger.debug('Start function execution {}'.format(str(currentdt)))
-        timeseries = df.reset_index()
-        #Create a zero value series
-        additional_values = pd.Series(np.zeros(timeseries[self.input_item].size),index=timeseries.index)
-        timestamps_indexes = []
+
         logger.debug('Dataframe shape {}'.format(df.shape))
 
         #Derived Metric Table
         derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
         schema = "BLUADMIN"
 
-        #COS
         db = self.get_db()
         #Initialize storage
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
@@ -51,11 +45,13 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
-        logger.debug('counts_by_entity_id {}'.format(counts_by_entity_id)            
+        logger.debug('counts_by_entity_id {}'.format(counts_by_entity_id))            
 
         #Mark Anomaly timestamp indexes
+        timeseries = df.reset_index()
+        timestamps_indexes = []
         #Group by entity_ids
-        df_grpby =timeseries.groupby('id')
+        df_grpby=timeseries.groupby('id')
         for grp in df_grpby.__iter__():
 
             entity_grp_id = grp[0]
@@ -83,6 +79,9 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         #Save the group counts to cos
         db.cos_save(counts_by_entity_id,key,binary=True)
 
+        #Create a zero value series
+        additional_values = pd.Series(np.zeros(timeseries[self.input_item].size),index=timeseries.index)
+
         for start  in timestamps_indexes:
             local_std = timeseries[self.input_item].iloc[max(0, start - 10):start + 10].std()
             additional_values.iloc[start] += np.random.choice([-1, 1]) * self.size * local_std
@@ -90,7 +89,6 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         timeseries[self.output_item] = additional_values + timeseries[self.input_item]
         timeseries.set_index(df.index.names,inplace=True)
         logger.debug('Dataframe final shape {}'.format(timeseries.shape))
-        logger.debug('End function execution {}'.format(str(currentdt)))
         return timeseries
 
     @classmethod
