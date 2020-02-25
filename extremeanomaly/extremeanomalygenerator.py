@@ -87,8 +87,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         for start  in timestamps_indexes:
             local_std = timeseries[self.input_item].iloc[max(0, start - 10):start + 10].std()
             additional_values.iloc[start] += np.random.choice([-1, 1]) * self.size * local_std
-            timeseries[self.output_item] = additional_values + timeseries[self.input_item]
-
+        
+        timeseries[self.output_item] = additional_values + timeseries[self.input_item]
         timeseries.set_index(df.index.names,inplace=True)
         logger.debug('Dataframe final shape {}'.format(timeseries.shape))
         logger.debug('End function execution {}'.format(str(currentdt)))
