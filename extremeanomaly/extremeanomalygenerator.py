@@ -32,35 +32,22 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         timestamps_indexes = []
         logger.debug('Dataframe shape {}'.format(df.shape))
 
-        # #Get Derived Metric Table
+        #Derived Metric Table
         derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
-        # derived_metric_table_key = self.input_item
-        # df_deviceid_col_name = 'entity_id'
-        # db = self.get_db()
         schema = "BLUADMIN"
-        # logger.debug('Fire Database query')
-        # print('Fire Database query')
-        # df_result = db.read_agg(derived_metric_table_name,
-        #                         schema,
-        #                         agg_dict={df_deviceid_col_name: 'count'},
-        #                         agg_outputs={"count": 'count'},
-        #                         groupby=[df_deviceid_col_name],
-        #                         filters={'key':derived_metric_table_key}
-        #                         deviceid_col=df_deviceid_col_name)
-        # logger.debug(df_result)
+
 
         #COS
         db = self.get_db()
+        #schema = db.schema
+        logger.debug('DB schema {} , Metadata {}'.format(db.schema,db.entity_type_metadata))
         key = '_'.join([derived_metric_table_name, self.output_item])
         #Initialize storage
-        logger.debug('derived_metric_table_name {}'.format(derived_metric_table_name))
-        logger.debug('schema {}'.format(schema))
-        logger.debug('filters {}'.format(self.output_item))
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
         raw_dataframe = db.get_query_data(query)
         logger.debug('raw_dataframe {}'.format(raw_dataframe.shape))
 
-        if raw_dataframe is None:
+        if raw_dataframe is not None and raw_dataframe.empty:
             logger.debug('Not Exists')
             db.cos_delete(key)
         
