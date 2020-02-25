@@ -36,12 +36,12 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
         raw_dataframe = db.get_query_data(query)
         logger.debug('Rows in DM table {}'.format(raw_dataframe.shape))
+        key = '_'.join([derived_metric_table_name, self.output_item])
 
         if raw_dataframe is not None and raw_dataframe.empty:
             db.cos_delete(key) #Delete Old Counts If present
             logger.debug('Intialize count for first run')
         
-        key = '_'.join([derived_metric_table_name, self.output_item])
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
