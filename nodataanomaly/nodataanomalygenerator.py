@@ -23,25 +23,83 @@ class NoDataAnomalyGenerator(BaseTransformer):
         super().__init__()
 
     def execute(self, df):
-        currentdt = datetime.datetime.now(timezone.utc)
-        logger.debug('Start function execution {}'.format(str(currentdt)))
+
+        logger.debug('Dataframe shape {}'.format(df.shape))
+        
+        entity_type = self.get_entity_type()
+        logger.debug('isinstance of {}', type(entity_type))
+        derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
+        schema = entity_type._db_schema
+
+        #Store and initialize the counts by entity id 
+        db = self.get_db()
+        query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
+        raw_dataframe = db.get_query_data(query)
+        logger.debug('Check for key column {} in derived metric table {}'.format(self.output_item,raw_dataframe.shape))
+        key = '_'.join([derived_metric_table_name, self.output_item])
+
+        if raw_dataframe is not None and raw_dataframe.empty:
+            #Delete old counts if present
+            db.cos_delete(key)
+            logger.debug('Intialize count for first run')
+        
+        counts_by_entity_id = db.cos_load(key,binary=True)
+        if counts_by_entity_id is None:
+            counts_by_entity_id = {}
+        logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))            
+
+        #Copy columns
+        timeseries[self.output_item] = timeseries[self.input_item]
+
+        #Mark Anomaly timestamp indexes
         timeseries = df.reset_index()
-        #Create a zero value series
-        additional_values = pd.Series(np.zeros(timeseries[self.input_item].size),index=timeseries.index)
         timestamps_indexes = []
-        #Divide the timeseries in (factor)number of splits.Each split will have one anomaly
-        for time_splits in np.array_split(timeseries,self.factor):
-            if not time_splits.empty:
-                start = time_splits.sample().index[0]
-                end = min(start+self.width,time_splits.index[-1])
-                timestamps_indexes.append((start,end))
-        #Create nodata anomalies in every split
-        logger.debug('Time stamp indexes {}'.format(timestamps_indexes))
-        for start, end in timestamps_indexes:
-            additional_values.iloc[start:end] = np.NaN
-            timeseries[self.output_item] = additional_values + timeseries[self.input_item]
-            logger.debug('Final Dataframe')
-            logger.debug(timeseries[self.output_item].iloc[start:end])
+        df_grpby=timeseries.groupby('id')
+        for grp in df_grpby.__iter__():
+
+            entity_grp_id = grp[0]
+            df_entity_grp = grp[1]
+            logger.debug('Group id {}'.format(grp[0]))
+            logger.debug('Group Indexes {}'.format(df_entity_grp.index))
+
+            count = 0
+            width = self.width
+            if entity_grp_id in counts_by_entity_id:
+                count = counts_by_entity_id[entity_grp_id][0]
+                width = counts_by_entity_id[entity_grp_id][0]
+
+            mark_NaN = False
+            for grp_row_index in df_entity_grp.index:
+                count += 1
+                # if entity_grp_id in counts_by_entity_id:
+                #     #Increment count
+                #     counts_by_entity_id[entity_grp_id][0] +=1
+                # else:
+                #     #Initialize count
+                #     counts_by_entity_id[entity_grp_id][0] = 1
+                # Check if this index count will be an anomaly point
+
+                if count%self.factor == 0:
+                    #Start marking points as NaN
+                    mark_NaN = True
+                
+                if mark_NaN:
+                    timeseries.iloc[grp_row_index] = np.NaN
+                    width -= 1
+                    logger.debug('Anomaly Index Value{}'.format(grp_row_index))
+                
+                if width==0:
+                    #Start marking points as NaN
+                    mark_NaN =False
+                    width = self.width
+                
+                counts_by_entity_id[entity_grp_id] = (count,width)
+
+        logger.debug('Timestamp Indexes For Anomalies {}'.format(timestamps_indexes))
+        logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
+        
+        #Save the group counts to cos
+        db.cos_save(counts_by_entity_id,key,binary=True)
 
         timeseries.set_index(df.index.names,inplace=True)
         logger.debug('End function execution {}'.format(str(currentdt)))
