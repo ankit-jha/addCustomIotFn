@@ -27,11 +27,10 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
         logger.debug('Dataframe shape {}'.format(df.shape))
         
-        #Derived Metric Table
+        entity_type = self.get_entity_type()
         derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
-        schema = "BLUADMIN"
+        schema = entity_type._db_schema
 
-        
         #Store and initialize the counts by entity id 
         db = self.get_db()
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
@@ -87,6 +86,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         timeseries[self.output_item] = additional_values + timeseries[self.input_item]
         timeseries.set_index(df.index.names,inplace=True)
         return timeseries
+
+
 
     @classmethod
     def build_ui(cls):
