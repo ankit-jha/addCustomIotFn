@@ -46,14 +46,11 @@ class NoDataAnomalyGenerator(BaseTransformer):
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
-        logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))            
-
-        #Copy columns
-        timeseries[self.output_item] = timeseries[self.input_item]
+        logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))
 
         #Mark Anomaly timestamp indexes
         timeseries = df.reset_index()
-        timestamps_indexes = []
+        timeseries[self.output_item] = timeseries[self.input_item]
         df_grpby=timeseries.groupby('id')
         for grp in df_grpby.__iter__():
 
@@ -89,13 +86,12 @@ class NoDataAnomalyGenerator(BaseTransformer):
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
                 
                 if width==0:
-                    #Start marking points as NaN
+                    #End marking points as NaN
                     mark_NaN =False
                     width = self.width
                 
                 counts_by_entity_id[entity_grp_id] = (count,width)
 
-        logger.debug('Timestamp Indexes For Anomalies {}'.format(timestamps_indexes))
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
         
         #Save the group counts to cos
