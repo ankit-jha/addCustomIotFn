@@ -84,6 +84,7 @@ class NoDataAnomalyGenerator(BaseTransformer):
                     timeseries.iloc[grp_row_index] = np.NaN
                     width -= 1
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
+                    logger.debug('Width Value{}'.format(width))
                 
                 if width==0:
                     #End marking points as NaN
@@ -98,7 +99,6 @@ class NoDataAnomalyGenerator(BaseTransformer):
         db.cos_save(counts_by_entity_id,key,binary=True)
 
         timeseries.set_index(df.index.names,inplace=True)
-        logger.debug('End function execution {}'.format(str(currentdt)))
         return timeseries
 
     @classmethod
