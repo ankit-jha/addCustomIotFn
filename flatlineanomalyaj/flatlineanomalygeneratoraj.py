@@ -25,13 +25,13 @@ class FlatlineAnomalyGenerator(BaseTransformer):
     def execute(self, df):
 
         logger.debug('Dataframe shape {}'.format(df.shape))
-        
+
         entity_type = self.get_entity_type()
         logger.debug('isinstance of {}', type(entity_type))
         derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
         schema = entity_type._db_schema
 
-        #Store and initialize the counts by entity id 
+        #Store and initialize the counts by entity id
         db = self.get_db()
         query, table = db.query(derived_metric_table_name,schema,column_names='KEY',filters={'KEY':self.output_item})
         raw_dataframe = db.get_query_data(query)
@@ -42,7 +42,7 @@ class FlatlineAnomalyGenerator(BaseTransformer):
             #Delete old counts if present
             db.cos_delete(key)
             logger.debug('Intialize count for first run')
-        
+
         counts_by_entity_id = db.cos_load(key,binary=True)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
@@ -74,22 +74,22 @@ class FlatlineAnomalyGenerator(BaseTransformer):
                 if count%self.factor == 0:
                     #Start marking points
                     mark_anomaly = True
-                
+
                 if mark_anomaly:
                     timeseries.iloc[grp_row_index] = local_mean
                     width -= 1
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
-                
+
                 if width==0:
                     #End marking points
                     mark_anomaly =False
                     width = self.width
                     local_mean = None
-                
+
                 counts_by_entity_id[entity_grp_id] = (count,width,local_mean)
 
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
-        
+
         #Save the group counts to cos
         db.cos_save(counts_by_entity_id,key,binary=True)
 
@@ -106,15 +106,17 @@ class FlatlineAnomalyGenerator(BaseTransformer):
                                               ))
 
         inputs.append(UISingle(
-                name='width',
+                name='factor',
                 datatype=int,
-                description='Width of the anomaly created- default 100'
+                description='Frequency of anomaly e.g. A value of 3 will create anomaly every 3 datapoints',
+                default=10
                                               ))
 
         inputs.append(UISingle(
-                name='factor',
+                name='width',
                 datatype=int,
-                description='No. of flatline anomalies to be created'
+                description='Width of the anomaly created',
+                default=5
                                               ))
 
         outputs = []
