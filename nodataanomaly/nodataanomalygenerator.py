@@ -48,7 +48,7 @@ class NoDataAnomalyGenerator(BaseTransformer):
             counts_by_entity_id = {}
         logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))
 
-        #Mark Anomaly timestamp indexes
+        #Mark Anomalies
         timeseries = df.reset_index()
         timeseries[self.output_item] = timeseries[self.input_item]
         df_grpby=timeseries.groupby('id')
@@ -65,30 +65,21 @@ class NoDataAnomalyGenerator(BaseTransformer):
                 count = counts_by_entity_id[entity_grp_id][0]
                 width = counts_by_entity_id[entity_grp_id][0]
 
-            mark_NaN = False
+            mark_anomaly = False
             for grp_row_index in df_entity_grp.index:
                 count += 1
-                # if entity_grp_id in counts_by_entity_id:
-                #     #Increment count
-                #     counts_by_entity_id[entity_grp_id][0] +=1
-                # else:
-                #     #Initialize count
-                #     counts_by_entity_id[entity_grp_id][0] = 1
-                # Check if this index count will be an anomaly point
-
                 if count%self.factor == 0:
                     #Start marking points as NaN
                     mark_NaN = True
                 
-                if mark_NaN:
+                if mark_anomaly:
                     timeseries.iloc[grp_row_index] = np.NaN
                     width -= 1
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
-                    logger.debug('Width Value{}'.format(width))
                 
                 if width==0:
                     #End marking points as NaN
-                    mark_NaN =False
+                    mark_anomaly =False
                     width = self.width
                 
                 counts_by_entity_id[entity_grp_id] = (count,width)
