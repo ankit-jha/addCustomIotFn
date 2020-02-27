@@ -87,8 +87,6 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         timeseries.set_index(df.index.names,inplace=True)
         return timeseries
 
-
-
     @classmethod
     def build_ui(cls):
         inputs = []
@@ -101,13 +99,15 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         inputs.append(UISingle(
                 name='factor',
                 datatype=int,
-                description='Frequency of anomaly e.g. A value of 3 will create anomaly every 3 datapoints'
+                description='Frequency of anomaly e.g. A value of 3 will create anomaly every 3 datapoints',
+                default=5
                                               ))
 
         inputs.append(UISingle(
                 name='size',
                 datatype=int,
-                description='Size of extreme anomalies to be created. e.g. 10 will create 10x size extreme anomaly compared to the normal variance'
+                description='Size of extreme anomalies to be created. e.g. 10 will create 10x size extreme anomaly compared to the normal variance',
+                default=10
                                               ))
 
         outputs = []
