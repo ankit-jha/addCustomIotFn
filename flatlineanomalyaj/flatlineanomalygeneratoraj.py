@@ -56,37 +56,40 @@ class FlatlineAnomalyGenerator(BaseTransformer):
 
             entity_grp_id = grp[0]
             df_entity_grp = grp[1]
-            logger.debug('Group id {}'.format(grp[0]))
-            logger.debug('Group Indexes {}'.format(df_entity_grp.index))
+            logger.debug('Group {} Indexes {}'.format(grp[0],df_entity_grp.index))
 
             count = 0
-            width = self.width
-            local_mean = df_entity_grp.iloc[:10][self.input_item].mean()
+            width = self_width
+            local_mean = df_entity_grp.iloc[:10][input_col].mean()
             if entity_grp_id in counts_by_entity_id:
                 count = counts_by_entity_id[entity_grp_id][0]
                 width = counts_by_entity_id[entity_grp_id][1]
-                if counts_by_entity_id[entity_grp_id][2] is not None:
+                if count != 0:
                     local_mean = counts_by_entity_id[entity_grp_id][2]
 
             mark_anomaly = False
             for grp_row_index in df_entity_grp.index:
                 count += 1
-                if count%self.factor == 0:
+                
+                if width!=self_width or count%factor == 0:
                     #Start marking points
                     mark_anomaly = True
 
                 if mark_anomaly:
-                    timeseries[self.output_item].iloc[grp_row_index] = local_mean
+                    timeseries[output_col].iloc[grp_row_index] = local_mean
                     width -= 1
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
 
                 if width==0:
                     #End marking points
                     mark_anomaly =False
-                    width = self.width
-                    local_mean = None
+                    #Update values
+                    width = self_width
+                    count = 0
+                    local_mean = df_entity_grp.iloc[:10][input_col].mean()
 
-                counts_by_entity_id[entity_grp_id] = (count,width,local_mean)
+            counts_by_entity_id[entity_grp_id] = (count,width,local_mean)
+
 
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
@@ -109,14 +112,14 @@ class FlatlineAnomalyGenerator(BaseTransformer):
                 name='factor',
                 datatype=int,
                 description='Frequency of anomaly e.g. A value of 3 will create anomaly every 3 datapoints',
-                default=10
+                default=3
                                               ))
 
         inputs.append(UISingle(
                 name='width',
                 datatype=int,
-                description='Width of the anomaly created',
-                default=5
+                description='Width of the anomaly created.',
+                default=9
                                               ))
 
         outputs = []
