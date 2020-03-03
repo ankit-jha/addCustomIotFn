@@ -73,7 +73,7 @@ class NoDataAnomalyGenerator(BaseTransformer):
                     mark_anomaly = True
 
                 if mark_anomaly:
-                    timeseries.iloc[grp_row_index] = np.NaN
+                    timeseries[self.output_item].iloc[grp_row_index] = np.NaN
                     width -= 1
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
 
