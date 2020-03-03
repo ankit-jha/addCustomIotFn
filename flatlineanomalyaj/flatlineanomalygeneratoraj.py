@@ -59,8 +59,8 @@ class FlatlineAnomalyGenerator(BaseTransformer):
             logger.debug('Group {} Indexes {}'.format(grp[0],df_entity_grp.index))
 
             count = 0
-            width = self_width
-            local_mean = df_entity_grp.iloc[:10][input_col].mean()
+            width = self.width
+            local_mean = df_entity_grp.iloc[:10][self.input_item].mean()
             if entity_grp_id in counts_by_entity_id:
                 count = counts_by_entity_id[entity_grp_id][0]
                 width = counts_by_entity_id[entity_grp_id][1]
@@ -71,22 +71,22 @@ class FlatlineAnomalyGenerator(BaseTransformer):
             for grp_row_index in df_entity_grp.index:
                 count += 1
                 
-                if width!=self_width or count%factor == 0:
+                if width!=self.width or count%factor == 0:
                     #Start marking points
                     mark_anomaly = True
 
                 if mark_anomaly:
-                    timeseries[output_col].iloc[grp_row_index] = local_mean
+                    timeseries[self.output_item].iloc[grp_row_index] = local_mean
                     width -= 1
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
 
                 if width==0:
                     #End marking points
-                    mark_anomaly =False
+                    mark_anomaly = False
                     #Update values
-                    width = self_width
+                    width = self.width
                     count = 0
-                    local_mean = df_entity_grp.iloc[:10][input_col].mean()
+                    local_mean = df_entity_grp.iloc[:10][self.input_item].mean()
 
             counts_by_entity_id[entity_grp_id] = (count,width,local_mean)
 
