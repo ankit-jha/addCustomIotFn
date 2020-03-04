@@ -40,10 +40,10 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
         if raw_dataframe is not None and raw_dataframe.empty:
             #Delete old counts if present
-            db.cos_delete(key)
+            db.model_store.delete(key)
             logger.debug('Intialize count for first run')
         
-        counts_by_entity_id = db.cos_load(key,binary=True)
+        counts_by_entity_id = db.model_store.retrieve_model(key)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))            
@@ -70,13 +70,13 @@ class ExtremeAnomalyGenerator(BaseTransformer):
                     #Mark anomaly point
                     timeseries[self.output_item].iloc[grp_row_index] = np.random.choice([-1, 1]) * self.size * local_std
                     logger.debug('Anomaly Index Value{}'.format(grp_row_index))
-            
+
             counts_by_entity_id[entity_grp_id] = count
 
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
-        #Save the group counts to cos
-        db.cos_save(counts_by_entity_id,key,binary=True)
+        #Save the group counts to db
+        db.model_store.store_model(key, counts_by_entity_id)
 
         timeseries.set_index(df.index.names,inplace=True)
         return timeseries
