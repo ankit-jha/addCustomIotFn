@@ -76,7 +76,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
         #Save the group counts to db
-        db.model_store.store_model(key, counts_by_entity_id)
+        db.model_store.store_model(key, counts_by_entity_id,serialize=False)
 
         timeseries.set_index(df.index.names,inplace=True)
         return timeseries
