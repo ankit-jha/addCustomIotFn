@@ -71,7 +71,7 @@ class FlatlineAnomalyGenerator(BaseTransformer):
             for grp_row_index in df_entity_grp.index:
                 count += 1
                 
-                if width!=self.width or count%factor == 0:
+                if width!=self.width or count%self.factor == 0:
                     #Start marking points
                     mark_anomaly = True
 
