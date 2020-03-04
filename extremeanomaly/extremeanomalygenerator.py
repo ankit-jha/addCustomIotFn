@@ -43,7 +43,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             db.model_store.delete_model(key)
             logger.debug('Intialize count for first run')
         
-        counts_by_entity_id = db.model_store.retrieve_model(key)
+        counts_by_entity_id = db.model_store.retrieve_model(key,deserialize=False)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))            
