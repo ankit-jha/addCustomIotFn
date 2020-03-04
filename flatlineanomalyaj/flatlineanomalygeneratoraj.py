@@ -27,7 +27,6 @@ class FlatlineAnomalyGenerator(BaseTransformer):
         logger.debug('Dataframe shape {}'.format(df.shape))
 
         entity_type = self.get_entity_type()
-        logger.debug('isinstance of {}', type(entity_type))
         derived_metric_table_name = 'DM_'+self.get_entity_type_param('name')
         schema = entity_type._db_schema
 
@@ -40,10 +39,10 @@ class FlatlineAnomalyGenerator(BaseTransformer):
 
         if raw_dataframe is not None and raw_dataframe.empty:
             #Delete old counts if present
-            db.cos_delete(key)
+            db.model_store.delete(key)
             logger.debug('Intialize count for first run')
 
-        counts_by_entity_id = db.cos_load(key,binary=True)
+        counts_by_entity_id = db.model_store.retrieve_model(key)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))
@@ -93,8 +92,8 @@ class FlatlineAnomalyGenerator(BaseTransformer):
 
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
-        #Save the group counts to cos
-        db.cos_save(counts_by_entity_id,key,binary=True)
+        #Save the group counts to db
+        db.model_store.store_model(key, counts_by_entity_id)
 
         timeseries.set_index(df.index.names,inplace=True)
         return timeseries
