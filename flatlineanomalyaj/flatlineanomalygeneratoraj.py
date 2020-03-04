@@ -42,7 +42,7 @@ class FlatlineAnomalyGenerator(BaseTransformer):
             db.model_store.delete_model(key)
             logger.debug('Intialize count for first run')
 
-        counts_by_entity_id = db.model_store.retrieve_model(key,deserialize=False)
+        counts_by_entity_id = db.model_store.retrieve_model(key)
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))
@@ -93,7 +93,7 @@ class FlatlineAnomalyGenerator(BaseTransformer):
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
         #Save the group counts to db
-        db.model_store.store_model(key, counts_by_entity_id,serialize=False)
+        db.model_store.store_model(key, counts_by_entity_id)
 
         timeseries.set_index(df.index.names,inplace=True)
         return timeseries
