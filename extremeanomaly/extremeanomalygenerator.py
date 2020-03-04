@@ -56,8 +56,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
 
             entity_grp_id = grp[0]
             df_entity_grp = grp[1]
-            logger.debug('Group id {}'.format(grp[0]))
-            logger.debug('Group Indexes {}'.format(df_entity_grp.index))
+            logger.debug('Group {} Indexes {}'.format(grp[0],df_entity_grp.index))
 
             count = 0
             local_std = df_entity_grp.iloc[:10][self.input_item].std()
@@ -70,6 +69,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
                 if count%self.factor == 0:
                     #Mark anomaly point
                     timeseries[self.output_item].iloc[grp_row_index] = np.random.choice([-1, 1]) * self.size * local_std
+                    logger.debug('Anomaly Index Value{}'.format(grp_row_index))
             
             counts_by_entity_id[entity_grp_id] = count
 
