@@ -29,7 +29,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
         
         entity_type = self.get_entity_type()
         logger.debug('Instance of Entity type {}'.format(type(entity_type)))
-        logger.debug('Trace of Entity type {}'.format(entity_type.trace_append('tester','testing_msg')))
+        logger.debug('Data Items of Entity type {}'.format(entity_type._data_items)
         derived_metric_table_name = 'DM_'+entity_type.name
         schema = entity_type._db_schema
 
