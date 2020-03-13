@@ -109,6 +109,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             final = np.append(actual[:strt_idx],a2)
             # Set values in the original dataframe
             timeseries.loc[df_entity_grp.index, self.output_item] = final
+        logger.debug(timeseries[['id',self.input_item,self.output_item]].sort_values(['id']))
 
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
