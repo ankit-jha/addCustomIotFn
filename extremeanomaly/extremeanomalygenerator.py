@@ -82,7 +82,7 @@ class ExtremeAnomalyGenerator(BaseTransformer):
                 strt_idx = self.factor - count%self.factor
 
             #Update group counts for storage
-            actual = df_entity_grp[output_col].values
+            actual = df_entity_grp[self.output_item].values
             count += actual.size
             counts_by_entity_id[entity_grp_id] = count
 
