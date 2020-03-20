@@ -81,13 +81,14 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             else:
                 strt_idx = self.factor - count%self.factor
 
-            #Update group counts for storage
+            # Prepare numpy array for marking anomalies
             actual = df_entity_grp[self.output_item].values
+            a = actual[strt_idx:]
+            
+            # Update group counts for storage
             count += actual.size
             counts_by_entity_id[entity_grp_id] = count
-
-            #Prepare numpy array for marking anomalies
-            a = actual[strt_idx:]
+            
             # Create NaN padding for reshaping
             nan_arr = np.repeat(np.nan, self.factor - a.size % self.factor)
             # Prepare numpy array to reshape
@@ -109,7 +110,6 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             final = np.append(actual[:strt_idx],a2)
             # Set values in the original dataframe
             timeseries.loc[df_entity_grp.index, self.output_item] = final
-        logger.debug(timeseries[['id',self.input_item,self.output_item]].sort_values(['id']))
 
         logger.debug('Final Grp Counts {}'.format(counts_by_entity_id))
 
