@@ -46,6 +46,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             key = str(derived_metric_table_name) + str(self.output_item)
             pass
 
+        # If key is not present i.e. raw_dataframe is empty
+        # Reinitialize the count
         if raw_dataframe is not None and raw_dataframe.empty:
             # delete old counts if present
             db.model_store.delete_model(key)
@@ -58,6 +60,8 @@ class ExtremeAnomalyGenerator(BaseTransformer):
             logger.error('Counts by entity id not yet initialized - error: ' + str(e2))
             pass
 
+        # counts_by_entity_id will be none for the very first run
+        # or counts_by_entity_id will be none if the kpi was recreated or deleted
         if counts_by_entity_id is None:
             counts_by_entity_id = {}
         logger.debug('Initial Grp Counts {}'.format(counts_by_entity_id))
