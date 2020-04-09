@@ -42,7 +42,7 @@ from simple_aggregator.mean_aggregator import MeanAggregator
 
 fn = MeanAggregator(
         input_items = ['speed'],
-        expression = 'mean',
+        expression = 'x.max() - x.min()',
         output_items = ['mean_speed']
         )
 
