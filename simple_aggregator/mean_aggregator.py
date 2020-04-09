@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from iotfunctions.base import BaseSimpleAggregator
-from iotfunctions import ui
+from iotfunctions.ui import (UIExpression,UIMultiItem)
 
 logger = logging.getLogger(__name__)
 
