@@ -38,16 +38,14 @@ By default test results are written to a file named df_test_entity_for_<function
 This file will be written to the working directory.
 
 '''
+from simple_aggregator.mean_aggregator import MeanAggregator
 
-from custom.functions import HelloWorld
-fn = HelloWorld(
-        name = 'AS_Tester',
-        greeting_col = 'greeting')
-fn.execute_local_test(db=db,db_schema=db_schema)
+fn = MeanAggregator(
+        input_items = ['speed'],
+        expression = 'mean',
+        output_items = ['mean_speed']
+        )
 
-'''
-Register function so that you can see it in the UI
-'''
-
-db.register_functions([HelloWorld])
-
+df = fn.execute_local_test(db=db, db_schema=db_schema, generate_days=1,to_csv=True)
+print(df)
+df.to_csv('test.csv')
