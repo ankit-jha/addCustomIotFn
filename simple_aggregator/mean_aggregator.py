@@ -49,5 +49,11 @@ class MeanAggregator(BaseSimpleAggregator):
 
         return (inputs, [])
 
+    def _calc(self, df):
+        """
+        If the function should be executed separately for each entity, describe the function logic in the _calc method
+        """
+        pass
+
     def aggregate(self, x):
         return eval(self.expression)
