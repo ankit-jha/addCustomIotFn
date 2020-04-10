@@ -41,11 +41,10 @@ This file will be written to the working directory.
 from simple_aggregator.mean_aggregator import MeanAggregator
 
 fn = MeanAggregator(
-        input_items = ['speed'],
-        expression = 'x.max() - x.min()',
-        output_items = ['mean_speed']
+        input_items = ['speed','flow'],
+        expression = 'x.max()',
+        output_items = ['max_speed','max_flow']
         )
 
-df = fn.execute_local_test(db=db, db_schema=db_schema, generate_days=1,to_csv=True)
+df = fn.execute_local_test(db=db, db_schema=db_schema,to_csv=False)
 print(df)
-df.to_csv('test.csv')

@@ -53,7 +53,7 @@ class MeanAggregator(BaseSimpleAggregator):
         """
         If the function should be executed separately for each entity, describe the function logic in the _calc method
         """
-        pass
+        return df[self.input_items].apply(self.get_aggregation_method())
 
     def aggregate(self, x):
         return eval(self.expression)
