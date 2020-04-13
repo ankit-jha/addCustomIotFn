@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@simple_aggregator_package'
 
 
-class MeanAggregator(BaseSimpleAggregator):
+class SimpleAggregator(BaseSimpleAggregator):
     '''
     Create aggregation using expression. The calculation is evaluated for
     each data_item selected. The data item will be made available as a

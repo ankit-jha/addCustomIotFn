@@ -38,9 +38,9 @@ By default test results are written to a file named df_test_entity_for_<function
 This file will be written to the working directory.
 
 '''
-from simple_aggregator.mean_aggregator import MeanAggregator
+from simple_aggregator.simple_aggregator import SimpleAggregator
 
-fn = MeanAggregator(
+fn = SimpleAggregator(
         input_items = ['speed','flow'],
         expression = 'x.max()',
         output_items = ['max_speed','max_flow']
