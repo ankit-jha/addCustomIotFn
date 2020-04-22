@@ -6,59 +6,91 @@ from sqlalchemy.sql.sqltypes import TIMESTAMP, VARCHAR
 import numpy as np
 import pandas as pd
 
-from iotfunctions.base import BaseTransformer
+from iotfunctions.base import BaseSimpleAggregator
 from iotfunctions import ui
+from iotfunctions.ui import (UISingle, UIMultiItem, UIFunctionOutSingle, UISingleItem, UIFunctionOutMulti,UIExpression)
 
 logger = logging.getLogger(__name__)
 
 # Specify the URL to your package here.
 # This URL must be accessible via pip install
 
-PACKAGE_URL = 'git+https://github.com/<path_to_repository>@'
+PACKAGE_URL = 'git+https://github.com/starter_agg_package@'
 
 
-class HelloWorld(BaseTransformer):
+def _no_datatype_aggregator_output():
+    return {'name': 'name',
+            'description': 'Enter a name for the data item that is produced as a result of this calculation.'}.copy()
+
+
+def _general_aggregator_input():
+    return {'name': 'source', 'description': 'Select the data item that you want to use as input for your calculation.',
+            'type': 'DATA_ITEM', 'required': True, }.copy()
+
+
+def _general_aggregator_output():
+    output_item = _no_datatype_aggregator_output()
+    output_item['dataTypeFrom'] = 'source'
+    return output_item
+
+
+def _number_aggregator_output():
+    output_item = _no_datatype_aggregator_output()
+    output_item['dataType'] = 'NUMBER'
+    return output_item
+
+
+def _generate_metadata(cls, metadata):
+    common_metadata = {'name': cls.__name__, 'moduleAndTargetName': '%s.%s' % (cls.__module__, cls.__name__),
+                       'category': 'AGGREGATOR', 'input': [_general_aggregator_input()], 'output': [_general_aggregator_output()]}
+    common_metadata.update(metadata)
+    return common_metadata
+
+class HelloWorldAggregator(BaseSimpleAggregator):
     '''
-    The docstring of the function will show as the function description in the UI.
+    Create aggregation using expression on a data item.
     '''
 
-    def __init__(self, name, greeting_col):
-        # a function is expected to have at least one parameter that acts
-        # as an input argument, e.g. "name" is an argument that represents the
-        # name to be used in the greeting. It is an "input" as it is something
-        # that the function needs to execute.
+    def __init__(self, source=None, expression=None):
+        if expression is None or not isinstance(expression, str):
+            raise RuntimeError("argument expression must be provided and must be a string")
 
-        # a function is expected to have at lease one parameter that describes
-        # the output data items produced by the function, e.g. "greeting_col"
-        # is the argument that asks what data item name should be used to
-        # deliver the functions outputs
-
-        # always create an instance variable with the same name as your arguments
-
-        self.name = name
-        self.greeting_col = greeting_col
+        self.source = source
+        self.expression = expression
         super().__init__()
 
-        # do not place any business logic in the __init__ method  # all business logic goes into the execute() method or methods called by the  # execute() method
+    def execute(self, group):
+        return eval(re.sub(r"\$\{GROUP\}", r"group", self.expression))
 
-    def execute(self, df):
-        # the execute() method accepts a dataframe as input and returns a dataframe as output
-        # the output dataframe is expected to produce at least one new output column
-
-        df[self.greeting_col] = 'Hello %s' % self.name
-
-        # If the function has no new output data, output a status_flag instead
-        # e.g. df[<self.output_col_arg>> = True
-
-        return df
+    #def aggregate(self, x):
+    #    pass
 
     @classmethod
     def build_ui(cls):
-        # Your function will UI built automatically for configuring it
-        # This method describes the contents of the dialog that will be built
-        # Account for each argument - specifying it as a ui object in the "inputs" or "outputs" list
+        inputs = []
+        #inputs.append(UISingleItem(
+        #        name='source',
+        #        datatype=None,
+        #        description='Choose the data items that you would like to aggregate on'
+        #        ))
+        inputs.append(UIMultiItem(
+                name='source',
+                datatype=None,
+                description='Choose the data items \
+                        that you would like to aggregate on'),
+                output_item='name',
+                is_output_datatype_derived=True
+                ))
 
-        inputs = [ui.UISingle(name='name', datatype=str, description='Name of person to greet')]
-        outputs = [
-            ui.UIFunctionOutSingle(name='greeting_col', datatype=str, description='Output item produced by function')]
+        inputs.append(UIExpression(
+                name='expression',
+                description='Paste in or type an AS expression'
+                ))
+
+        outputs = []
+        #outputs.append(UIFunctionOutSingle(
+        #        name='name',
+        #        is_output_datatype_derived=True,
+        #        description='Generated Aggregation'
+        #        ))
         return (inputs, outputs)
