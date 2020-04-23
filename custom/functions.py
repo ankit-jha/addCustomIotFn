@@ -6,7 +6,7 @@ from sqlalchemy.sql.sqltypes import TIMESTAMP, VARCHAR
 import numpy as np
 import pandas as pd
 
-from iotfunctions.base import BaseSimpleAggregator
+from iotfunctions.base import BaseAggregator,BaseSimpleAggregator
 from iotfunctions import ui
 from iotfunctions.ui import (UISingle, UIMultiItem, UIFunctionOutSingle, UISingleItem, UIFunctionOutMulti,UIExpression)
 
@@ -65,7 +65,7 @@ def _generate_metadata(cls, metadata):
     common_metadata.update(metadata)
     return common_metadata
 
-class HelloWorldAggregator(BaseSimpleAggregator):
+class HelloWorldAggregator(BaseAggregator):
 
     @classmethod
     def metadata(cls):
