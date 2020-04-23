@@ -70,7 +70,7 @@ class HelloWorldAggregator(BaseAggregator):
     @classmethod
     def metadata(cls):
         return _generate_metadata(cls, {
-            'description': 'Create aggregation using expression on a data item.', 
+            'description': 'Create simple aggregation using expression on a data item.', 
             'input': [
                 _general_aggregator_input(),
                 {
