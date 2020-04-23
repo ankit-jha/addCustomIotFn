@@ -18,33 +18,33 @@ logger = logging.getLogger(__name__)
 PACKAGE_URL = 'git+https://github.com/starter_agg_package@'
 
 
-def _no_datatype_aggregator_output():
-    return {'name': 'name',
-            'description': 'Enter a name for the data item that is produced as a result of this calculation.'}.copy()
-
-
-def _general_aggregator_input():
-    return {'name': 'source', 'description': 'Select the data item that you want to use as input for your calculation.',
-            'type': 'DATA_ITEM', 'required': True, }.copy()
-
-
-def _general_aggregator_output():
-    output_item = _no_datatype_aggregator_output()
-    output_item['dataTypeFrom'] = 'source'
-    return output_item
-
-
-def _number_aggregator_output():
-    output_item = _no_datatype_aggregator_output()
-    output_item['dataType'] = 'NUMBER'
-    return output_item
-
-
-def _generate_metadata(cls, metadata):
-    common_metadata = {'name': cls.__name__, 'moduleAndTargetName': '%s.%s' % (cls.__module__, cls.__name__),
-                       'category': 'AGGREGATOR', 'input': [_general_aggregator_input()], 'output': [_general_aggregator_output()]}
-    common_metadata.update(metadata)
-    return common_metadata
+#def _no_datatype_aggregator_output():
+#    return {'name': 'name',
+#            'description': 'Enter a name for the data item that is produced as a result of this calculation.'}.copy()
+#
+#
+#def _general_aggregator_input():
+#    return {'name': 'source', 'description': 'Select the data item that you want to use as input for your calculation.',
+#            'type': 'DATA_ITEM', 'required': True, }.copy()
+#
+#
+#def _general_aggregator_output():
+#    output_item = _no_datatype_aggregator_output()
+#    output_item['dataTypeFrom'] = 'source'
+#    return output_item
+#
+#
+#def _number_aggregator_output():
+#    output_item = _no_datatype_aggregator_output()
+#    output_item['dataType'] = 'NUMBER'
+#    return output_item
+#
+#
+#def _generate_metadata(cls, metadata):
+#    common_metadata = {'name': cls.__name__, 'moduleAndTargetName': '%s.%s' % (cls.__module__, cls.__name__),
+#                       'category': 'AGGREGATOR', 'input': [_general_aggregator_input()], 'output': [_general_aggregator_output()]}
+#    common_metadata.update(metadata)
+#    return common_metadata
 
 class HelloWorldAggregator(BaseSimpleAggregator):
     '''
