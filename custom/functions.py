@@ -96,3 +96,6 @@ class HelloWorldAggregator(BaseAggregator):
     def execute(self, group):
         return eval(re.sub(r"\$\{GROUP\}", r"group", self.expression))
 
+    @classmethod
+    def build_ui(cls):
+        pass
