@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Specify the URL to your package here.
 # This URL must be accessible via pip install
 
-PACKAGE_URL = 'git+https://github.com/starter_agg_package@'
+PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_agg_package'
 
 def _general_aggregator_input():
     return {
