@@ -79,7 +79,7 @@ class HelloWorldAggregator(BaseSimpleAggregator):
                 description='Choose the data items \
                         that you would like to aggregate on'),
                 output_item='name',
-                is_output_datatype_derived=True
+                is_output_datatype_derived=True,
                 )
 
         inputs.append(UIExpression(
