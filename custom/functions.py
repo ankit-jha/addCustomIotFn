@@ -98,4 +98,4 @@ class HelloWorldAggregator(BaseAggregator):
 
     @classmethod
     def build_ui(cls):
-        pass
+        return ([], [])
