@@ -87,7 +87,7 @@ class HelloWorldAggregator(BaseAggregator):
         })
 
 
-    def __init__(self, source=None, expression=None):
+    def __init__(self, source, expression):
         if expression is None or not isinstance(expression, str):
             raise RuntimeError("argument expression must be provided and must be a string")
 
