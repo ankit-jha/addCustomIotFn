@@ -94,6 +94,8 @@ class HelloWorldAggregator(BaseAggregator):
 
         self.source = source
         self.expression = expression
+        logger.info(self.expression)
+        super().__init__()
 
     def execute(self, group):
         return eval(re.sub(r"\$\{GROUP\}", r"group", self.expression))
