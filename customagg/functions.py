@@ -92,7 +92,7 @@ class HelloWorldAggregator(BaseSimpleAggregator):
         if expression is None or not isinstance(expression, str):
             raise RuntimeError("argument expression must be provided and must be a string")
 
-        self.input_items = source
+        self.source = source
         self.expression = expression
         logger.info('HelloWorld Expression')
         logger.info(self.expression)
