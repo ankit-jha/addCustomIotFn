@@ -66,7 +66,7 @@ def _generate_metadata(cls, metadata):
     common_metadata.update(metadata)
     return common_metadata
 
-class HelloWorldAggregator(BaseAggregator):
+class HelloWorldAggregator(BaseSimpleAggregator):
 
     @classmethod
     def metadata(cls):
