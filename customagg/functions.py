@@ -94,6 +94,7 @@ class HelloWorldAggregator(BaseAggregator):
 
         self.source = source
         self.expression = expression
+        logger.info('HelloWorld Expression')
         logger.info(self.expression)
         super().__init__()
 
