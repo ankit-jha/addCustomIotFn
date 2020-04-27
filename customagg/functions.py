@@ -88,15 +88,22 @@ class HelloWorldAggregator(BaseSimpleAggregator):
         })
 
 
-    def __init__(self, source, expression):
+    def __init__(self, source=None, expression=None):
         if expression is None or not isinstance(expression, str):
             raise RuntimeError("argument expression must be provided and must be a string")
 
-        self.source = source
+        self.input_items = source
         self.expression = expression
-        logger.info('HelloWorld Expression')
-        logger.info(self.expression)
-        super().__init__()
+
+    #def __init__(self, source, expression):
+    #    if expression is None or not isinstance(expression, str):
+    #        raise RuntimeError("argument expression must be provided and must be a string")
+
+    #    self.source = source
+    #    self.expression = expression
+    #    logger.info('HelloWorld Expression')
+    #    logger.info(self.expression)
+    #    super().__init__()
 
     def execute(self, group):
         return eval(re.sub(r"\$\{GROUP\}", r"group", self.expression))
