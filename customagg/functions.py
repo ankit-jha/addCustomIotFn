@@ -43,5 +43,5 @@ class HelloWorldAggregator(BaseSimpleAggregator):
 
         inputs.append(UIExpression(name='expression', description='Use ${GROUP} to reference the current grain.'
                                                     'All Pandas Series methods can be used on the grain.'
-                                                    'For example, ${GROUP}.max().'))
+                                                    'For example, ${GROUP}.max() - ${GROUP}.min().'))
         return (inputs, [])
