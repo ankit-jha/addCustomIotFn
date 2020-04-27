@@ -67,6 +67,9 @@ PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_agg_packa
 #    return common_metadata
 
 class HelloWorldAggregator(BaseSimpleAggregator):
+    '''
+    The docstring of the function will show as the function description in the UI.
+    '''
 
     #@classmethod
     #def metadata(cls):
