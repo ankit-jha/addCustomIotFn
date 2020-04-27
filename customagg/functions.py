@@ -68,24 +68,24 @@ def _generate_metadata(cls, metadata):
 
 class HelloWorldAggregator(BaseSimpleAggregator):
 
-    @classmethod
-    def metadata(cls):
-        return _generate_metadata(cls, {
-            'description': 'Create simple aggregation using expression on a data item.', 
-            'input': [
-                _general_aggregator_input(),
-                {
-                    'name': 'expression',
-                    'description': 'Use ${GROUP} to reference the current grain. All Pandas Series methods can be used on the grain. For example, ${GROUP}.max() - ${GROUP}.min().',
-                    'type': 'CONSTANT',
-                    'required': True,
-                    'dataType': 'LITERAL'
-                }
-            ],
-            'output': [
-                _no_datatype_aggregator_output()
-            ]
-        })
+    #@classmethod
+    #def metadata(cls):
+    #    return _generate_metadata(cls, {
+    #        'description': 'Create simple aggregation using expression on a data item.', 
+    #        'input': [
+    #            _general_aggregator_input(),
+    #            {
+    #                'name': 'expression',
+    #                'description': 'Use ${GROUP} to reference the current grain. All Pandas Series methods can be used on the grain. For example, ${GROUP}.max() - ${GROUP}.min().',
+    #                'type': 'CONSTANT',
+    #                'required': True,
+    #                'dataType': 'LITERAL'
+    #            }
+    #        ],
+    #        'output': [
+    #            _no_datatype_aggregator_output()
+    #        ]
+    #    })
 
 
     def __init__(self, source=None, expression=None):
@@ -94,16 +94,6 @@ class HelloWorldAggregator(BaseSimpleAggregator):
 
         self.input_items = source
         self.expression = expression
-
-    #def __init__(self, source, expression):
-    #    if expression is None or not isinstance(expression, str):
-    #        raise RuntimeError("argument expression must be provided and must be a string")
-
-    #    self.source = source
-    #    self.expression = expression
-    #    logger.info('HelloWorld Expression')
-    #    logger.info(self.expression)
-    #    super().__init__()
 
     def execute(self, group):
         return eval(re.sub(r"\$\{GROUP\}", r"group", self.expression))
