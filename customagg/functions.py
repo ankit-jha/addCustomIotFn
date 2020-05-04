@@ -1,14 +1,11 @@
-import inspect
 import re
 import logging
 import datetime as dt
 import math
-from sqlalchemy.sql.sqltypes import TIMESTAMP, VARCHAR
 import numpy as np
 import pandas as pd
 
 from iotfunctions.base import BaseSimpleAggregator
-from iotfunctions import ui
 from iotfunctions.ui import (UIMultiItem,UIExpression)
 
 logger = logging.getLogger(__name__)
@@ -36,6 +33,8 @@ class HelloWorldAggregator(BaseSimpleAggregator):
     @classmethod
     def build_ui(cls):
         inputs = []
+        # Input variable name must be kept 'source'
+        # Output variable name must be kept 'name'
         inputs.append(UIMultiItem(name='source', datatype=None, description=('Choose the data items'
                                                                             ' that you would like to'
                                                                                   ' aggregate'),
