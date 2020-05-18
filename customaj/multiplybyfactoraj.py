@@ -19,12 +19,14 @@ PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_package'
 
 class MultiplyByFactorAJ(BaseTransformer):
 
-    def __init__(self, input_items, factor, output_items):
-
+    def __init__(self, input_items, entity_list, factor, output_items):
         self.input_items = input_items
         self.output_items = output_items
         self.factor = float(factor)
+        kwargs = {'_entity_filter_list': entity_list}
+        self._metadata_params = kwargs
         super().__init__()
+
     def execute(self, df):
         df = df.copy()
         for i,input_item in enumerate(self.input_items):
@@ -35,17 +37,22 @@ class MultiplyByFactorAJ(BaseTransformer):
     def build_ui(cls):
         #define arguments that behave as function inputs
         inputs = []
+        inputs.append(ui.UIMulti(
+                name='entity_list',
+                datatype=str,
+                description='comma separated list of entity ids')
+                )
         inputs.append(ui.UIMultiItem(
                 name = 'input_items',
                 datatype=float,
                 description = "Data items adjust",
                 output_item = 'output_items',
                 is_output_datatype_derived = True)
-                      )        
+                )        
         inputs.append(ui.UISingle(
                 name = 'factor',
                 datatype=float)
-                      )
+                )
         outputs = []
         return (inputs,outputs)
 
