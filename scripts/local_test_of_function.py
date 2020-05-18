@@ -18,7 +18,7 @@ Place your credentials in a separate file that you don't check into the repo.
 
 '''
 
-with open('credentials_as_dev.json', encoding='utf-8') as F:
+with open('credentials_as.json', encoding='utf-8') as F:
     credentials = json.loads(F.read())
 db_schema = None
 db = Database(credentials=credentials)
@@ -39,15 +39,17 @@ This file will be written to the working directory.
 
 '''
 
-from custom.functions import HelloWorld
-fn = HelloWorld(
-        name = 'AS_Tester',
-        greeting_col = 'greeting')
-fn.execute_local_test(db=db,db_schema=db_schema)
-
+from customaj.multiplybyfactoraj import MultiplyByFactorAJ
+fn = MultiplyByFactorAJ(
+        input_items = ['speed'],
+        factor = '2',
+        output_items = ['adj_speed'])
+df = fn.execute_local_test(db=db, db_schema=db_schema, generate_days=1,to_csv=True)
+print(df)
+df.to_csv('test.csv')
 '''
 Register function so that you can see it in the UI
 '''
 
-db.register_functions([HelloWorld])
+#db.register_functions([HelloWorld])
 
