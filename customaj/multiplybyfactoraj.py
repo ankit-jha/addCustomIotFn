@@ -40,7 +40,8 @@ class MultiplyByFactorAJ(BaseTransformer):
         inputs.append(ui.UIMulti(
                 name='entity_list',
                 datatype=str,
-                description='comma separated list of entity ids')
+                description='comma separated list of entity ids',
+                required=False)
                 )
         inputs.append(ui.UIMultiItem(
                 name = 'input_items',
