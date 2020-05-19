@@ -23,8 +23,9 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.input_items = input_items
         self.output_items = output_items
         self.factor = float(factor)
-        kwargs = {'_entity_filter_list': entity_list}
-        self._metadata_params = kwargs
+        if entity_list:
+            kwargs = {'_entity_filter_list': entity_list}
+            self._metadata_params = kwargs
         super().__init__()
 
     def execute(self, df):
