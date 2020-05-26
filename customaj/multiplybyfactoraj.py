@@ -19,7 +19,8 @@ PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_package'
 
 class MultiplyByFactorAJ(BaseTransformer):
 
-    def __init__(self, input_items, entity_list, factor, output_items):
+    def __init__(self,dimension_name, input_items, entity_list, factor, output_items):
+        self.dimension_name = dimension_name
         self.input_items = input_items
         self.output_items = output_items
         self.factor = float(factor)
@@ -38,6 +39,7 @@ class MultiplyByFactorAJ(BaseTransformer):
     def build_ui(cls):
         #define arguments that behave as function inputs
         inputs = []
+        inputs.append(UISingleItem(name='dimension_name', datatype=str))
         inputs.append(ui.UIMulti(
                 name='entity_list',
                 datatype=str,
