@@ -26,8 +26,11 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.entity_list = entity_list
 
     def execute(self, df):
-        entity_filter = df.index.isin(self.entity_list, level=0) if self.entity_list is not None else df.index.notna() 
-        df_copy = df[entity_filter].copy()
+        if self.entity_list is not None:
+            df_copy = df[df.index.isin(self.entity_list, level=0)].copy()
+        else:
+            df_copy = df.copy()
+
         for i,input_item in enumerate(self.input_items):
             df_copy[self.output_items[i]] = df_copy[input_item] * self.factor
         return df_copy 
