@@ -19,15 +19,16 @@ PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_package'
 
 class MultiplyByFactorAJ(BaseTransformer):
 
-    def __init__(self, input_items, factor, output_items, entity_list=None):
+    def __init__(self, input_items, factor, output_items, entity_list):
         self.input_items = input_items
         self.factor = float(factor)
         self.output_items = output_items
         self.entity_list = entity_list
 
     def execute(self, df):
-        if self.entity_list is not None:
-            df_copy = df[df.index.isin(self.entity_list, level=0)].copy()
+        if not self.entity_list:
+            entity_filter = df.index.isin(self.entity_list, level=0)
+            df_copy = df[entity_filter].copy()
         else:
             df_copy = df.copy()
 
