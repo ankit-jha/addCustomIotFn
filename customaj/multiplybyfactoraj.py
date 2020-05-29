@@ -26,7 +26,7 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.entity_list = entity_list
 
     def execute(self, df):
-        if not self.entity_list:
+        if self.entity_list:
             entity_filter = df.index.isin(self.entity_list, level=0)
             df_copy = df[entity_filter].copy()
         else:
