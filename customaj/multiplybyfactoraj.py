@@ -23,11 +23,11 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.input_items = input_items
         self.factor = float(factor)
         self.output_items = output_items
-        self.entity_list = entity_list
+        self.entity_list_val = entity_list
 
     def execute(self, df):
-        if self.entity_list:
-            entity_filter = df.index.isin(self.entity_list, level=0)
+        if self.entity_list_val:
+            entity_filter = df.index.isin(self.entity_list_val, level=0)
             df_copy = df[entity_filter].copy()
         else:
             df_copy = df.copy()
