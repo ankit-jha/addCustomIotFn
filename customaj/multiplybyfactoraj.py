@@ -34,6 +34,8 @@ class MultiplyByFactorAJ(BaseTransformer):
         else:
             df_copy = df.copy()
 
+        logger.debug('df_copy {}'.format(df_copy))
+
         for i,input_item in enumerate(self.input_items):
             df_copy[self.output_items[i]] = df_copy[input_item] * self.factor
         return df_copy 
