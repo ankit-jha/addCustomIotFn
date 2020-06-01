@@ -26,7 +26,7 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.entity_list_val = entity_list
 
     def execute(self, df):
-        logger.debug('entity_list_val'+ self.entity_list_val)
+        logger.debug('entity_list_val {}'.format(self.entity_list_val))
         if self.entity_list_val:
             entity_filter = df.index.isin(self.entity_list_val, level=0)
             df_copy = df[entity_filter].copy()
