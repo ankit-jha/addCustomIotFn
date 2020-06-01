@@ -29,7 +29,7 @@ class MultiplyByFactorAJ(BaseTransformer):
         logger.debug('entity_list_val {}'.format(self.entity_list_val))
         if self.entity_list_val:
             entity_filter = df.index.isin(self.entity_list_val, level=0)
-            logger.debug('Inside filter {}'.format(str(entity_filter.size())))
+            logger.debug('Inside filter {}'.format(len(entity_filter)))
             df_copy = df[entity_filter].copy()
         else:
             df_copy = df.copy()
