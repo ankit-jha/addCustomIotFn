@@ -23,22 +23,17 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.input_items = input_items
         self.factor = float(factor)
         self.output_items = output_items
-        self.entity_list_val = entity_list
+        self.entity_list = entity_list
 
     def execute(self, df):
-        logger.debug('entity_list_val {}'.format(self.entity_list_val))
-        if self.entity_list_val:
-            entity_filter = df.index.isin(self.entity_list_val, level=0)
-            logger.debug('Inside filter {}'.format(len(entity_filter)))
-            df_copy = df[entity_filter].copy()
+        if self.entity_list:
+            entity_filter = df.index.isin(self.entity_list, level=0)
         else:
-            df_copy = df.copy()
-
-        logger.debug('df_copy {}'.format(df_copy))
+            entity_filter = np.full(len(df),True)
 
         for i,input_item in enumerate(self.input_items):
-            df_copy[self.output_items[i]] = df_copy[input_item] * self.factor
-        return df_copy 
+            df[self.output_items[i]] = df[input_item].where(entity_filter) * self.factor
+        return df
 
     @classmethod
     def build_ui(cls):
