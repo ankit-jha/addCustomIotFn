@@ -59,7 +59,7 @@ class MultiplyByFactorAJ(BaseTransformer):
     def build_ui(cls):
         #define arguments that behave as function inputs
         inputs = []
-        inputs.append(ui.UISingleItem(name='dimension_name', datatype=str))
+        #inputs.append(ui.UISingleItem(name='dimension_name', datatype=str))
         inputs.append(ui.UIMulti(
                 name='entity_list',
                 datatype=str,
