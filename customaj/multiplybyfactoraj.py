@@ -19,17 +19,38 @@ PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_package'
 
 class MultiplyByFactorAJ(BaseTransformer):
 
-    def __init__(self, input_items, factor, output_items, entity_list):
+    def __init__(self, input_items, factor, output_items, entity_list=None):
         self.input_items = input_items
         self.factor = float(factor)
         self.output_items = output_items
         self.entity_list = entity_list
+        self.expression = expression
 
     def execute(self, df):
         if self.entity_list:
             entity_filter = df.index.isin(self.entity_list, level=0)
         else:
             entity_filter = np.full(len(df),True)
+
+        logger.info('ExpressionWithFilter  exp: ' + self.expression + '  input: ' + str(df.columns))
+        expr = self.expression
+
+        if '${' in expr:
+            expr = re.sub(r"\$\{(\w+)\}", r"df['\1']", expr)
+            msg = 'Expression converted to %s. ' % expr
+        else:
+            msg = 'Expression (%s). ' % expr
+
+        self.trace_append(msg)
+
+        expr = str(expr)
+        logger.info('ExpressionWithFilter  - after regexp: ' + expr)
+
+        try:
+            evl = eval(expr)
+            n1 = np.where(evl, 1, 0)
+        except Exception as e:
+            logger.info('ExpressionWithFilter  eval for ' + expr + ' failed with ' + str(e))
 
         for i,input_item in enumerate(self.input_items):
             df[self.output_items[i]] = df[input_item].where(entity_filter) * self.factor
@@ -39,11 +60,19 @@ class MultiplyByFactorAJ(BaseTransformer):
     def build_ui(cls):
         #define arguments that behave as function inputs
         inputs = []
+        inputs.append(UISingleItem(name='dimension_name', datatype=str))
         inputs.append(ui.UIMulti(
                 name='entity_list',
                 datatype=str,
                 description='comma separated list of entity ids',
                 required=False)
+                )
+        inputs.append(UIExpression(
+                name='expression',
+                description="Define alert expression using pandas systax. \
+                             Example: df['inlet_temperature']>50. ${pressure} \
+                             will be substituted with df['pressure'] before \
+                             evaluation, ${} with df[<dimension_name>]")
                 )
         inputs.append(ui.UIMultiItem(
                 name = 'input_items',
