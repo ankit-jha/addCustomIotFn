@@ -20,7 +20,7 @@ PACKAGE_URL = 'git+https://github.com/ankit-jha/addCustomIotFn@starter_package'
 
 class MultiplyByFactorAJ(BaseTransformer):
 
-    def __init__(self, input_items, factor, output_items, expression, entity_list=None):
+    def __init__(self, input_items, factor, output_items, expression=None, entity_list=None):
         self.input_items = input_items
         self.factor = float(factor)
         self.output_items = output_items
@@ -28,10 +28,10 @@ class MultiplyByFactorAJ(BaseTransformer):
         self.entity_list = entity_list
 
     def execute(self, df):
-        #if self.entity_list:
-        #    entity_filter = df.index.isin(self.entity_list, level=0)
-        #else:
-        #    entity_filter = np.full(len(df),True)
+        if self.entity_list:
+            entity_filter = df.index.isin(self.entity_list, level=0)
+        else:
+            entity_filter = np.full(len(df),True)
 
         logger.info('ExpressionWithFilter  exp: ' + self.expression + '  input: ' + str(df.columns))
         expr = self.expression
@@ -49,6 +49,7 @@ class MultiplyByFactorAJ(BaseTransformer):
 
         try:
             mask = eval(expr)
+            logger.info('Mask Series {}'.format(mask))
             for i,input_item in enumerate(self.input_items):
                 df[self.output_items[i]] = df[input_item].where(mask) * self.factor
             return df
