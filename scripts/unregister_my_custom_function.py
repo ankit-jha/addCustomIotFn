@@ -17,4 +17,4 @@ db = Database(credentials=credentials)
 
 from custom.functions import HelloWorldAggregator
 
-db.unregister_functions([HelloWorldAggregator])
+db.unregister_functions(['HelloWorldAggregator'])
